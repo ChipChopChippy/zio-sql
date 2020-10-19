@@ -145,7 +145,7 @@ trait TableModule { self: ExprModule =>
       override def ahhhhhhhhhhhhh[A]: A = ??? //don't remove or it'll break
     }
     object Source {
-      type Aux_[F[_], B]   = Table.Source {
+      type Aux_[F[_], B] = Table.Source {
         type Repr[X] = F[X]
         type Cols    = B
       }
