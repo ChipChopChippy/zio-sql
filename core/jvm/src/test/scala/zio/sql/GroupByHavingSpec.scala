@@ -1,7 +1,7 @@
 package zio.sql
 
 import zio.test.Assertion.anything
-import zio.test.{ assert, suite, test, DefaultRunnableSpec }
+import zio.test.{ assert, DefaultRunnableSpec }
 
 object GroupByHavingSpec extends DefaultRunnableSpec {
 
@@ -15,7 +15,11 @@ object GroupByHavingSpec extends DefaultRunnableSpec {
 }
 
 object AggregatedProductSchema {
-  val sqldsl = new Sql {}
+  val sqldsl = new Sql {
+    override def renderDelete(delete: this.Delete[_]): String = ???
+    override def renderRead(read: this.Read[_]): String       = ???
+    override def renderUpdate(update: Update[_]): String      = ???
+  }
   import sqldsl.ColumnSet._
   import sqldsl.AggregationDef._
   import sqldsl._
@@ -30,7 +34,7 @@ object AggregatedProductSchema {
   val id :*: name :*: amount :*: price :*: _ = productTable.columns
 
   val orderValue =
-    select { Arbitrary(name) ++ Sum(price) }
+    select(Arbitrary(name) ++ Sum(price))
       .from(productTable)
       .groupBy(name)
       .having(Sum(price) > 10)

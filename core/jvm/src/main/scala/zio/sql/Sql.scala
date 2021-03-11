@@ -1,6 +1,6 @@
 package zio.sql
 
-trait Sql extends SelectModule with DeleteModule with UpdateModule with ExprModule with TableModule {
+trait Sql extends SelectModule with DeleteModule with UpdateModule with ExprModule with TableModule { self =>
 
   /*
    * (SELECT *, "foo", table.a + table.b AS sum... FROM table WHERE cond) UNION (SELECT ... FROM table)
@@ -17,9 +17,14 @@ trait Sql extends SelectModule with DeleteModule with UpdateModule with ExprModu
   def select[F, A, B <: SelectionSet[A]](selection: Selection[F, A, B]): SelectBuilder[F, A, B] =
     SelectBuilder(selection)
 
-  def deleteFrom[F[_], A, B](table: Table.Source.Aux[F, A, B]): DeleteBuilder[F, A, B] = DeleteBuilder(table)
+  def deleteFrom[T <: Table](table: T): Delete[table.TableType] = Delete(table, true)
 
   def update[A](table: Table.Aux[A]): UpdateBuilder[A] = UpdateBuilder(table)
 
-  def renderRead(read: Read[_]): String = read.render(RenderMode.Pretty(2))
+  def renderDelete(delete: self.Delete[_]): String
+
+  def renderRead(read: self.Read[_]): String
+
+  def renderUpdate(update: self.Update[_]): String
+
 }
